@@ -18,12 +18,45 @@ wine = load_wine()
 
 ''' 코드 작성 바랍니다 '''
 
+X = pd.DataFrame(wine.data, columns=wine.feature_names)
+y = wine.target
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 ####### A 작업자 작업 수행 #######
 
 ''' 코드 작성 바랍니다 '''
 
+# DecisionTreeClassifier 모델링
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
 
+dt_param_grid = {
+    'criterion': ['gini', 'entropy'],
+    'max_depth': [2, 5],
+    'min_samples_split': [2, 10],
+    'min_samples_leaf': [1, 2, 4]
+}
+
+dt_model = DecisionTreeClassifier(random_state=42)
+dt_grid_search = GridSearchCV(dt_model, dt_param_grid, cv=5, scoring='accuracy')
+dt_grid_search.fit(X_train, y_train)
+
+dt_best_model = dt_grid_search.best_estimator_
+dt_pred = dt_best_model.predict(X_test)
+dt_accuracy = accuracy_score(y_test, dt_pred)
+
+
+# Feature Importance 시각화
+plt.figure(figsize=(12, 6))
+feature_importance = dt_best_model.feature_importances_
+plt.bar(wine.feature_names, feature_importance)
+plt.title('Feature Importance')
+plt.xlabel('Feature')
+plt.ylabel('Importance')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
 
 ####### B 작업자 작업 수행 #######
 
